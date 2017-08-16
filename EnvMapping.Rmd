@@ -1,0 +1,46 @@
+---
+title: "ArgentinaWhales"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+```
+
+```{r}
+dat<-read.csv("AnnotatedData.csv")
+dat<-dat %>% select(-individual.taxon.canonical.name,-tag.local.identifier,-individual.local.identifier,-sensor.type,-visible,-study.name,Species=individual.local.identifier)
+
+#melt variables
+mdat<-melt(dat,id.vars=c("location.lat","location.long","event.id","timestamp","Species"))
+colnames(mdat)[colnames(mdat) %in% "variable"]<-"Env"
+```
+What percentage of the data has MODIS coverage?
+
+```{r}
+mdat %>% group_by(Env) %>% summarize(coverage=sum(!is.na(value))/n()) %>% mutate(coverage=round(coverage,3)) %>% arrange(desc(coverage))
+```
+
+Let's see if we can get better estimates of SST somewhere, hard to know if this is important variable in polar environments.
+
+# Used versus Sampled Space
+```{r}
+
+ggplot(mdat,aes(x=value,fill=Species)) + geom_density() + facet_wrap(~Env,scales="free",ncol=2) + theme_bw()
+ggsave("AllDensityPlots.jpg",height=10,width=12)
+
+ggplot(mdat[mdat$Species %in% c("Ship","Humpback"),],aes(x=value,fill=Species)) + geom_density() + facet_wrap(~Env,scales="free",ncol=2) + theme_bw()
+ggsave("Humpback.jpg",height=10,width=12)
+
+ggplot(mdat[mdat$Species %in% c("Ship","Fin"),],aes(x=value,fill=Species)) + geom_density() + facet_wrap(~Env,scales="free",ncol=2) + theme_bw()
+ggsave("Fin.jpg",height=10,width=12)
+
+ggplot(mdat[mdat$Species %in% c("Ship","Sei"),],aes(x=value,fill=Species)) + geom_density() + facet_wrap(~Env,scales="free",ncol=2) + theme_bw()
+ggsave("Sei.jpg",height=10,width=12)
+
+```
