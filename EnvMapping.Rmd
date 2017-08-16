@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE,fig.height = 10,fig.width = 11)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -24,6 +24,9 @@ What percentage of the data has MODIS coverage?
 
 ```{r}
 mdat %>% group_by(Env) %>% summarize(coverage=sum(!is.na(value))/n()) %>% mutate(coverage=round(coverage,3)) %>% arrange(desc(coverage))
+
+mdat %>% group_by(Species,Env) %>% summarize(coverage=sum(!is.na(value))/n()) %>% mutate(coverage=round(coverage,3)) %>% arrange(desc(coverage))
+
 ```
 
 Let's see if we can get better estimates of SST somewhere, hard to know if this is important variable in polar environments.
